@@ -1,6 +1,8 @@
 package Payment;
 
 import java.util.ArrayList;
+import java.util.Dictionary;
+import java.util.Hashtable;
 import java.io.*;
 import java.nio.charset.StandardCharsets;
 
@@ -31,21 +33,13 @@ public class Webshop {
 		String line;
 		while ((line = br.readLine()) != null) {
 			String[] splitLine = line.split(";");
-			
-			if (splitLine[2] == "card" && splitLine[4] == "") {
-				try {
-					Payment p = new Payment(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), "", splitLine[5], splitLine[6]);
-					paymentList.add(p);
-				} catch (NumberFormatException ex) {
-					ex.printStackTrace();
-				}
-			} else if (splitLine[2] == "transfer" && splitLine[5] == "") {
-				try {
-					Payment p = new Payment(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), splitLine[4], "", splitLine[6]);
-					paymentList.add(p);
-				} catch (NumberFormatException ex) {
-					ex.printStackTrace();
-				}
+
+			if (splitLine[2].equals("card") && splitLine[4].isEmpty()) {
+				Payment p = new Payment(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), "", splitLine[5], splitLine[6]);
+				paymentList.add(p);
+			} else if (splitLine[2].equals("transfer") && splitLine[5].isEmpty()) {
+				Payment p = new Payment(splitLine[0], splitLine[1], splitLine[2], Integer.parseInt(splitLine[3]), splitLine[4], "", splitLine[6]);
+				paymentList.add(p);
 			} else {
 				Log("Kártyás vagy utalásos fizetésnél nem a megfelelő szám (bankszámlaszám vagy kártyaszám) van megadva", line);
 			}
@@ -65,6 +59,34 @@ public class Webshop {
 		bw.newLine();
 		bw.write(errorLine);
 		bw.newLine();
+		
+		bw.close();
+		fos.close();
+	}
+	
+	public void PurchaseSummary() throws IOException {
+		File f = new File("report01.csv");
+		FileOutputStream fos = new FileOutputStream(f);
+		
+		BufferedWriter bw = new BufferedWriter(new OutputStreamWriter(fos, StandardCharsets.UTF_8));
+		
+		Dictionary<String, Integer> sums = new Hashtable<String, Integer>();
+
+		for (int i = 0; i < customerList.size(); i++) {
+			int sum = 0;
+			
+			for (int j = 0; j < paymentList.size(); j++) {
+				if (paymentList.get(j).getCustomerId().equals(customerList.get(i).getCustomerId()) && paymentList.get(j).getWebshopId().equals(customerList.get(i).getWebsopId())) {
+					sum = sum + paymentList.get(j).getSum();
+				}
+			}
+			sums.put(customerList.get(i).getCustomerName(), sum);
+		}
+		
+		for (int i = 0; i < customerList.size(); i++) {
+			bw.write(customerList.get(i).getCustomerName() + ";" + customerList.get(i).getCustomerAddress() + ";" + sums.get(customerList.get(i).getCustomerName()));
+			bw.newLine();
+		}
 		
 		bw.close();
 		fos.close();

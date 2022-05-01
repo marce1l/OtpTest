@@ -10,6 +10,7 @@ public class Main {
 		try {
 			w.CustomerBeolvas("customer.csv");
 			w.PaymentBeolvas("payments.csv");
+			w.PurchaseSummary();
 		}  catch (IOException e) {
 			System.out.println("A file nem található");
 			e.printStackTrace();
