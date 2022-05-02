@@ -11,6 +11,7 @@ public class Main {
 			w.CustomerBeolvas("customer.csv");
 			w.PaymentBeolvas("payments.csv");
 			w.PurchaseSummary();
+			w.Income();
 		}  catch (IOException e) {
 			System.out.println("A file nem található");
 			e.printStackTrace();
